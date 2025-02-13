@@ -1,5 +1,10 @@
+.PHONY: format
+format:
+	pre-commit run black --all-files
+	pre-commit run isort --all-files
+
 .PHONY: check
-check:
+check: format
 	PYTHONPATH=src poetry run pylint src/ tests/
 	poetry run mypy src/ tests/
 	PYTHONPATH=src poetry run pytest --cov=mtf --cov-report=term-missing
