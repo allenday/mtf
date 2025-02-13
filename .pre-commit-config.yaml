@@ -36,6 +36,33 @@ repos:
             "--extension-pkg-allow-list=lxml.etree,networkx"
         ]
 
+-   repo: local
+    hooks:
+    -   id: pytest-check
+        name: pytest with coverage check
+        entry: poetry run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [
+            "--cov=mtf",
+            "--cov-report=term-missing",
+            "--cov-fail-under=90"
+        ]
+    -   id: radon-complexity
+        name: radon complexity
+        entry: bash -c 'poetry run radon cc . -a -s --min B && poetry run radon mi . -s --min B'
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+    -   id: radon-duplication
+        name: radon duplication and metrics
+        entry: bash -c 'poetry run radon raw . -s && poetry run radon hal .'
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0

@@ -36,11 +36,21 @@ pydantic = "^2.6.1"
 pydantic-ai = "^0.0.24"
 types-networkx = "^3.4.2.20241227"
 lxml-stubs = "^0.5.1"
+radon = "^6.0.1"
 
 [tool.black]
 line-length = 100
 target-version = ['py310']
 include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
 
 # Type checking
 [tool.mypy]
@@ -53,21 +63,31 @@ check_untyped_defs = true
 # Linting
 [tool.pylint.messages_control]
 disable = [
-    "C0111",  # missing-docstring
-    "C0103",  # invalid-name
+    "C0103",  # invalid-name - we'll handle naming through other means
 ]
-extension-pkg-allow-list = ["lxml.etree", "networkx"]
+extension-pkg-allow_list = ["lxml.etree", "networkx"]
 
 [tool.pylint.format]
 max-line-length = 100
 
-# Testing
+# Testing and Coverage
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=mtf"
+addopts = "-ra -q --cov=mtf --cov-report=term-missing --cov-fail-under=90"
 testpaths = [
     "tests",
 ]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise AssertionError",
+]
+fail_under = 90
 
 # Git commit message template
 [tool.commitizen]
@@ -80,3 +100,15 @@ version_files = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
+
+# Code complexity settings
+[tool.radon]
+exclude = "tests/*,venv/*,.git/*,.pytest_cache/*,__pycache__/*"
+cc_min = "B"
+mi_min = "B"
+show_complexity = true
+show_mi = true
+show_raw = true
+no_assert = true
+order = true
+total_average = true
