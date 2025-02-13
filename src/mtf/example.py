@@ -56,3 +56,4 @@ def calculate_sum(  # pylint: disable=unused-argument
 
 if calculator is not None:
     calculate_sum = calculator.tool(calculate_sum)
+
