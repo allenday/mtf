@@ -42,3 +42,4 @@ endif
 	@# If we get here, all checks passed - do the commit
 	git add .
 	git commit -m "$(COMMIT_MSG)"
+
