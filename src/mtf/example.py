@@ -14,6 +14,7 @@ class AdditionResult(BaseModel):  # pylint: disable=too-few-public-methods
     explanation: str = Field(description="Explanation of the calculation")
 
 
+
 def add(a: int, b: int) -> int:
     """Add two integers and return their sum.
 
