@@ -1,0 +1,50 @@
+name: Branch Naming
+
+on:
+  create:
+    branches:
+      - '**'
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  check-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+          VALID_PREFIXES="^(feature|bugfix|hotfix|docs|chore|test|refactor|style|perf|ci|deps|security)/"
+
+          if ! [[ $BRANCH_NAME =~ $VALID_PREFIXES ]]; then
+            echo "ERROR: Branch name must start with one of: feature/, bugfix/, hotfix/, docs/, chore/, test/, refactor/, style/, perf/, ci/, deps/, security/"
+            echo "Your branch name is: $BRANCH_NAME"
+            exit 1
+          fi
+
+          if [[ $BRANCH_NAME =~ [A-Z] ]]; then
+            echo "ERROR: Branch name should not contain uppercase letters"
+            echo "Your branch name is: $BRANCH_NAME"
+            exit 1
+          fi
+
+          if [[ $BRANCH_NAME =~ [[:space:]] ]]; then
+            echo "ERROR: Branch name should not contain spaces"
+            echo "Your branch name is: $BRANCH_NAME"
+            exit 1
+          fi
+
+          echo "Branch name is valid: $BRANCH_NAME"
+
+  check-pr-branch:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check PR target branch
+        run: |
+          BASE_BRANCH="${{ github.base_ref }}"
+          if [ "$BASE_BRANCH" != "main" ]; then
+            echo "ERROR: Pull requests must target the 'main' branch"
+            echo "Your PR targets: $BASE_BRANCH"
+            exit 1
+          fi

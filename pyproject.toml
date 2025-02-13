@@ -1,0 +1,72 @@
+[project]
+name = "mtf"
+version = "0.1.0"
+description = "Machine Tools Factory"
+authors = [
+    {name = "Allen Day",email = "allenday@allenday.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "pylint (>=3.3.4,<4.0.0)",
+    "black (>=25.1.0,<26.0.0)",
+    "mypy (>=1.15.0,<2.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    { include = "mtf", from = "src" }
+]
+
+# Code formatting
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.1.0"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+commitizen = "^4.2.1"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+
+# Type checking
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+
+# Linting
+[tool.pylint.messages_control]
+disable = [
+    "C0111",  # missing-docstring
+    "C0103",  # invalid-name
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+# Testing
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --cov=mtf"
+testpaths = [
+    "tests",
+]
+
+# Git commit message template
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = [
+    "pyproject.toml:version",
+]

@@ -1,0 +1,15 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @allenday will be requested for review when someone
+# opens a pull request.
+*       @allenday
+
+# Python source code
+/src/mtf/       @allenday
+
+# Tests
+/tests/         @allenday
+
+# CI/CD and build configuration
+/.github/       @allenday
+pyproject.toml  @allenday
