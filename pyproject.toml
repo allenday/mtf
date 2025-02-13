@@ -30,6 +30,8 @@ pre-commit = "^4.1.0"
 pytest = "^8.3.4"
 pytest-cov = "^6.0.0"
 commitizen = "^4.2.1"
+pydantic = "^2.6.1"
+pydantic-ai = "^0.0.24"
 
 [tool.black]
 line-length = 100
@@ -70,3 +72,6 @@ tag_format = "v$version"
 version_files = [
     "pyproject.toml:version",
 ]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
