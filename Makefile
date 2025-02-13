@@ -4,10 +4,18 @@ format:
 	pre-commit run isort --all-files
 
 .PHONY: check
-check:
+check: format
 	PYTHONPATH=src poetry run pylint src/ tests/
 	poetry run mypy src/ tests/
 	PYTHONPATH=src poetry run pytest --cov=mtf --cov-report=term-missing
+	@echo "Running code complexity checks..."
+	poetry run radon cc src/ -a -s --min B
+	@echo "Running maintainability index checks..."
+	poetry run radon mi src/ -s --min B
+	@echo "Running raw metrics analysis..."
+	poetry run radon raw src/ -s
+	@echo "Checking for duplicate code..."
+	poetry run radon hal src/
 	$(MAKE) format
 	pre-commit run --all-files
 
