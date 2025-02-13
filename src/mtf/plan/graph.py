@@ -8,6 +8,19 @@ from typing import Any, List, Optional, Set, Union, cast
 import networkx as nx
 from lxml import etree
 
+from mtf.plan.models import (
+    EpicModel,
+    GetReadyTasksRequest,
+    GraphvizResponse,
+    MarkdownResponse,
+    MermaidResponse,
+    ReadyTasksResponse,
+    StoryModel,
+    TaskModel,
+    ToGraphvizRequest,
+    ToMarkdownRequest,
+    ToMermaidRequest,
+)
 from mtf.plan.node import EpicNode, PlanNode, Status, StoryNode, TaskNode
 
 
@@ -74,89 +87,129 @@ class PlanGraph:
 
     def _parse_task(self, task_elem: Any) -> Optional[TaskNode]:
         """Parse a task element into a TaskNode."""
-        task_id = cast(str, task_elem.get("id", ""))
-        status_str = cast(str, task_elem.get("status", ""))
-        description = cast(str, task_elem.findtext("description", ""))
-        priority_str = cast(str, task_elem.findtext("priority", "1"))
-
-        if not task_id or not status_str:
-            return None
-
         try:
-            status = Status(status_str)
-        except ValueError:
+            task_id = cast(str, task_elem.get("id", ""))
+            status_str = cast(str, task_elem.get("status", ""))
+            description = cast(str, task_elem.findtext("description", ""))
+            priority_str = cast(str, task_elem.findtext("priority", "1"))
+            deps = task_elem.findall(".//depends_on")
+            depends_on = [cast(str, dep.text) for dep in deps if dep.text]
+
+            # Validate using Pydantic model
+            task_model = TaskModel(
+                id=task_id,
+                description=description,
+                status=Status(status_str),
+                priority=int(priority_str),
+                depends_on=depends_on,
+            )
+
+            return TaskNode(
+                id=task_model.id,
+                description=task_model.description,
+                status=task_model.status,
+                priority=task_model.priority,
+                depends_on=task_model.depends_on,
+            )
+        except (ValueError, TypeError):
             return None
-
-        deps = task_elem.findall(".//depends_on")
-        depends_on = [cast(str, dep.text) for dep in deps if dep.text]
-
-        return TaskNode(
-            id=task_id,
-            description=description,
-            status=status,
-            priority=int(priority_str),
-            depends_on=depends_on,
-        )
 
     def _parse_story(self, story_elem: Any) -> Optional[StoryNode]:
         """Parse a story element into a StoryNode."""
-        story_id = cast(str, story_elem.get("id", ""))
-        status_str = cast(str, story_elem.get("status", ""))
-        description = cast(str, story_elem.findtext("description", ""))
-        priority_str = cast(str, story_elem.findtext("priority", "1"))
-        points_str = cast(str, story_elem.findtext("points", "0"))
-
-        if not story_id or not status_str:
-            return None
-
         try:
-            status = Status(status_str)
-        except ValueError:
+            story_id = cast(str, story_elem.get("id", ""))
+            status_str = cast(str, story_elem.get("status", ""))
+            description = cast(str, story_elem.findtext("description", ""))
+            priority_str = cast(str, story_elem.findtext("priority", "1"))
+            points_str = cast(str, story_elem.findtext("points", "0"))
+
+            tasks = []
+            for task_elem in story_elem.findall(".//task"):
+                task = self._parse_task(task_elem)
+                if task:
+                    tasks.append(task)
+
+            # Validate using Pydantic model
+            story_model = StoryModel(
+                id=story_id,
+                description=description,
+                status=Status(status_str),
+                priority=int(priority_str),
+                points=int(points_str),
+                tasks=[
+                    TaskModel(
+                        id=task.id,
+                        description=task.description,
+                        status=task.status,
+                        priority=task.priority,
+                        depends_on=task.depends_on,
+                    )
+                    for task in tasks
+                ],
+            )
+
+            return StoryNode(
+                id=story_model.id,
+                description=story_model.description,
+                status=story_model.status,
+                priority=story_model.priority,
+                points=story_model.points,
+                tasks=tasks,
+            )
+        except (ValueError, TypeError):
             return None
-
-        tasks = []
-        for task_elem in story_elem.findall(".//task"):
-            task = self._parse_task(task_elem)
-            if task:
-                tasks.append(task)
-
-        return StoryNode(
-            id=story_id,
-            description=description,
-            status=status,
-            priority=int(priority_str),
-            points=int(points_str),
-            tasks=tasks,
-        )
 
     def _parse_epic(self, epic_elem: Any) -> Optional[EpicNode]:
         """Parse an epic element into an EpicNode."""
-        epic_id = cast(str, epic_elem.get("id", ""))
-        status_str = cast(str, epic_elem.get("status", ""))
-        description = cast(str, epic_elem.findtext("description", ""))
-        priority_str = cast(str, epic_elem.findtext("priority", "1"))
-
-        if not epic_id or not status_str:
-            return None
-
         try:
-            status = Status(status_str)
-        except ValueError:
+            epic_id = cast(str, epic_elem.get("id", ""))
+            status_str = cast(str, epic_elem.get("status", ""))
+            description = cast(str, epic_elem.findtext("description", ""))
+            priority_str = cast(str, epic_elem.findtext("priority", "1"))
+
+            stories = []
+            for story_elem in epic_elem.findall(".//story"):
+                story = self._parse_story(story_elem)
+                if story:
+                    stories.append(story)
+
+            # Validate using Pydantic model
+            epic_model = EpicModel(
+                id=epic_id,
+                description=description,
+                status=Status(status_str),
+                priority=int(priority_str),
+                stories=[
+                    StoryModel(
+                        id=story.id,
+                        description=story.description,
+                        status=story.status,
+                        priority=story.priority,
+                        points=story.points,
+                        tasks=[
+                            TaskModel(
+                                id=task.id,
+                                description=task.description,
+                                status=task.status,
+                                priority=task.priority,
+                                depends_on=task.depends_on,
+                            )
+                            for task in story.tasks
+                        ],
+                    )
+                    for story in stories
+                ],
+            )
+
+            return EpicNode(
+                id=epic_model.id,
+                description=epic_model.description,
+                status=epic_model.status,
+                priority=epic_model.priority,
+                stories=stories,
+            )
+        except (ValueError, TypeError):
             return None
-
-        stories = []
-        for story_elem in epic_elem.findall(".//story"):
-            story = self._parse_story(story_elem)
-            if story:
-                stories.append(story)
-
-        return EpicNode(
-            id=epic_id,
-            description=description,
-            status=status,
-            priority=int(priority_str),
-            stories=stories,
-        )
 
     def build_from_xml(self, xml_path: Path) -> None:
         """
@@ -200,21 +253,29 @@ class PlanGraph:
                     for dep_id in task.depends_on:
                         self.graph.add_edge(task.id, dep_id, edge=Edge(type=EdgeType.DEPENDS_ON))
 
-    def get_ready_tasks(self) -> List[str]:
+    def get_ready_tasks(self, request: GetReadyTasksRequest) -> ReadyTasksResponse:
         """
         Get all tasks that are ready to be worked on.
 
-        A task is ready if:
-        1. It is in PENDING status
-        2. All its dependencies are COMPLETE
+        Args:
+            request: Input parameters for the request
 
         Returns:
-            List[str]: List of task IDs that are ready to be worked on
+            ReadyTasksResponse: Response containing list of task IDs that are ready to be worked on
         """
+        # Validate request using Pydantic
+        validated_request = GetReadyTasksRequest.model_validate(request)
+
         ready_tasks = []
         for node_id, node_data in self.graph.nodes(data=True):
             node = cast(NodeType, node_data.get("node"))
-            if not isinstance(node, TaskNode) or node.status != Status.PENDING:
+            if not isinstance(node, TaskNode):
+                continue
+
+            if node.status == Status.COMPLETE:
+                continue
+
+            if node.status == Status.IN_PROGRESS and not validated_request.include_in_progress:
                 continue
 
             # Check if all dependencies are complete
@@ -226,15 +287,22 @@ class PlanGraph:
             if all(dep.status == Status.COMPLETE for dep in dependencies):
                 ready_tasks.append(node_id)
 
-        return ready_tasks
+        # Validate response using Pydantic
+        response = ReadyTasksResponse(tasks=ready_tasks)
+        return response
 
-    def to_markdown(self) -> str:
+    def to_markdown(self, request: ToMarkdownRequest) -> MarkdownResponse:
         """
         Generate a markdown representation of the task hierarchy.
 
+        Args:
+            request: Input parameters for the request
+
         Returns:
-            str: Markdown formatted task hierarchy
+            MarkdownResponse: Response containing markdown formatted task hierarchy
         """
+        # Validate request using Pydantic
+        validated_request = ToMarkdownRequest.model_validate(request)
 
         def _add_task(task_id: str, visited: Set[str], level: int = 0) -> List[str]:
             if task_id in visited:
@@ -243,7 +311,10 @@ class PlanGraph:
 
             node_data = self.graph.nodes[task_id]
             node = cast(NodeType, node_data.get("node"))
-            lines = [f"{'  ' * level}- {node.id}: {node.description} ({node.status.value})"]
+            if validated_request.include_status:
+                lines = [f"{'  ' * level}- {node.id}: {node.description} ({node.status.value})"]
+            else:
+                lines = [f"{'  ' * level}- {node.id}: {node.description}"]
 
             # Find children (nodes that point to this one as a component)
             children = [
@@ -269,15 +340,23 @@ class PlanGraph:
         for root in roots:
             lines.extend(_add_task(root, visited))
 
-        return "\n".join(lines)
+        # Validate response using Pydantic
+        response = MarkdownResponse(content="\n".join(lines))
+        return response
 
-    def to_mermaid(self) -> str:
+    def to_mermaid(self, request: ToMermaidRequest) -> MermaidResponse:
         """
         Generate a mermaid graph representation.
 
+        Args:
+            request: Input parameters for the request
+
         Returns:
-            str: Mermaid formatted graph definition
+            MermaidResponse: Response containing mermaid formatted graph definition
         """
+        # Validate request using Pydantic
+        validated_request = ToMermaidRequest.model_validate(request)
+
         lines = ["graph TD"]
         for src, dst, data in self.graph.edges(data=True):
             src_data = self.graph.nodes[src]
@@ -288,19 +367,31 @@ class PlanGraph:
 
             # Use different arrow styles for different edge types
             arrow = "-.>" if edge.type == EdgeType.DEPENDS_ON else "-->"
-            lines.append(
-                f"    {src_node.id}[{src_node.description}] {arrow} "
-                f"{dst_node.id}[{dst_node.description}]"
-            )
-        return "\n".join(lines)
+            if validated_request.include_descriptions:
+                lines.append(
+                    f"    {src_node.id}[{src_node.description}] {arrow} "
+                    f"{dst_node.id}[{dst_node.description}]"
+                )
+            else:
+                lines.append(f"    {src_node.id} {arrow} {dst_node.id}")
 
-    def to_graphviz(self) -> str:
+        # Validate response using Pydantic
+        response = MermaidResponse(content="\n".join(lines))
+        return response
+
+    def to_graphviz(self, request: ToGraphvizRequest) -> GraphvizResponse:
         """
         Generate a Graphviz DOT representation.
 
+        Args:
+            request: Input parameters for the request
+
         Returns:
-            str: Graphviz DOT formatted graph definition
+            GraphvizResponse: Response containing Graphviz DOT formatted graph definition
         """
+        # Validate request using Pydantic
+        validated_request = ToGraphvizRequest.model_validate(request)
+
         lines = ["digraph {"]
         for src, dst, data in self.graph.edges(data=True):
             src_data = self.graph.nodes[src]
@@ -311,9 +402,15 @@ class PlanGraph:
 
             # Use different styles for different edge types
             style = "style=dashed" if edge.type == EdgeType.DEPENDS_ON else ""
-            lines.append(
-                f'    "{src_node.id}" [label="{src_node.description}"] -> '
-                f'"{dst_node.id}" [label="{dst_node.description}" {style}]'
-            )
+            if validated_request.include_descriptions:
+                lines.append(
+                    f'    "{src_node.id}" [label="{src_node.description}"] -> '
+                    f'"{dst_node.id}" [label="{dst_node.description}" {style}]'
+                )
+            else:
+                lines.append(f'    "{src_node.id}" -> "{dst_node.id}" [{style}]')
         lines.append("}")
-        return "\n".join(lines)
+
+        # Validate response using Pydantic
+        response = GraphvizResponse(content="\n".join(lines))
+        return response

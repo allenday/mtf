@@ -1,4 +1,4 @@
-"""Node classes for representing plan elements in the dependency graph."""
+"""Node classes for representing plan elements."""
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -14,40 +14,42 @@ class Status(Enum):
 
 
 @dataclass
-class BaseNode:
-    """Base class for all plan nodes."""
+class TaskNode:
+    """Node representing a task in the plan."""
 
     id: str
     description: str
     status: Status
     priority: int
-
-
-@dataclass
-class TaskNode(BaseNode):
-    """Represents a task in the plan."""
-
     depends_on: List[str] = field(default_factory=list)
 
 
 @dataclass
-class StoryNode(BaseNode):
-    """Represents a story in the plan."""
+class StoryNode:
+    """Node representing a story in the plan."""
 
+    id: str
+    description: str
+    status: Status
+    priority: int
     points: int
     tasks: List[TaskNode] = field(default_factory=list)
 
 
 @dataclass
-class EpicNode(BaseNode):
-    """Represents an epic in the plan."""
+class EpicNode:
+    """Node representing an epic in the plan."""
 
+    id: str
+    description: str
+    status: Status
+    priority: int
     stories: List[StoryNode] = field(default_factory=list)
 
 
 @dataclass
 class PlanNode:
-    """Represents the root plan node."""
+    """Node representing the entire plan."""
 
     version: str
     epics: List[EpicNode] = field(default_factory=list)
