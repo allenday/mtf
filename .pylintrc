@@ -1,10 +1,62 @@
 [MASTER]
+# Python code to execute, usually for sys.path manipulation such as
+# pygtk.require().
+#init-hook=
+
+# Files or directories to be skipped. They should be base names, not
+# paths.
+ignore=CVS
+
+# Add files or directories matching the regex patterns to the ignore-list. The
+# regex matches against paths and can be in Posix or Windows format.
+ignore-paths=
+
+# Files or directories matching the regex patterns are skipped. The regex
+# matches against base names, not paths.
+ignore-patterns=
+
+# Pickle collected data for later comparisons.
+persistent=yes
+
+# List of plugins (as comma separated values of python modules names) to load,
+# usually to register additional checkers.
+load-plugins=
+
+# Use multiple processes to speed up Pylint.
+jobs=1
+
+# Allow loading of arbitrary C extensions. Extensions are imported into the
+# active Python interpreter and may run arbitrary code.
+unsafe-load-any-extension=no
+
+# A comma-separated list of package or module names from where C extensions may
+# be loaded. Extensions are loading into the active Python interpreter and may
+# run arbitrary code
+extension-pkg-allow-list=lxml.etree,networkx
 
 [MESSAGES CONTROL]
+# Only disable truly redundant warnings
 disable=
-    C0111,  # missing-docstring
-    C0103   # invalid-name
+    C0103   # invalid-name - we'll handle naming through other means
 
+# Enable strict checks for better code quality
+enable=
+    broad-except,           # Avoid catching Exception/BaseException
+    try-except-raise,       # Avoid redundant try-except-raise
+    missing-module-docstring,  # Require module docstrings
+    missing-class-docstring,   # Require class docstrings
+    missing-function-docstring, # Require function docstrings
+    empty-docstring,        # Prevent empty docstrings
+    useless-return,        # Catch unnecessary returns
+    comparison-with-itself, # Catch x == x comparisons
+    dangerous-default-value # Catch mutable default arguments
 
 [FORMAT]
 max-line-length=100
+
+[BASIC]
+good-names=
+    i,j,k,ex,Run,_,df
+
+[DESIGN]
+max-statements=50

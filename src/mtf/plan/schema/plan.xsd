@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Simple types -->
+    <xs:simpleType name="statusType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="pending"/>
+            <xs:enumeration value="in_progress"/>
+            <xs:enumeration value="complete"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="priorityType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="5"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Complex types -->
+    <xs:complexType name="dependencyType">
+        <xs:sequence>
+            <xs:element name="depends_on" type="xs:string" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="taskType">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="priority" type="priorityType"/>
+            <xs:element name="dependencies" type="dependencyType" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="status" type="statusType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="tasksType">
+        <xs:sequence>
+            <xs:element name="task" type="taskType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="storyType">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="priority" type="priorityType"/>
+            <xs:element name="points" type="xs:integer"/>
+            <xs:element name="tasks" type="tasksType"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="status" type="statusType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="storiesType">
+        <xs:sequence>
+            <xs:element name="story" type="storyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="epicType">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="priority" type="priorityType"/>
+            <xs:element name="stories" type="storiesType"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="status" type="statusType" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="epicsType">
+        <xs:sequence>
+            <xs:element name="epic" type="epicType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="feedbackEntryType">
+        <xs:sequence>
+            <xs:element name="message" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="userFeedbackType">
+        <xs:sequence>
+            <xs:element name="entry" type="feedbackEntryType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="metadataType">
+        <xs:sequence>
+            <xs:element name="model" type="xs:string"/>
+            <xs:element name="provider" type="xs:string"/>
+            <xs:element name="version" type="xs:string"/>
+            <xs:element name="context" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Root element -->
+    <xs:element name="plan">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="epics" type="epicsType"/>
+                <xs:element name="user_feedback" type="userFeedbackType"/>
+                <xs:element name="metadata" type="metadataType"/>
+            </xs:sequence>
+            <xs:attribute name="version" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

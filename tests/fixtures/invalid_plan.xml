@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plan version="1.0">
+    <epics>
+        <epic id="epic1" status="invalid_status">  <!-- Invalid status value -->
+            <description>Implement core model system</description>
+            <priority>10</priority>  <!-- Invalid priority value -->
+            <stories>
+                <story id="story1" status="complete">
+                    <description>Implement base model classes</description>
+                    <priority>1</priority>
+                    <points>1</points>
+                    <tasks>
+                        <task id="task1">  <!-- Missing required status attribute -->
+                            <description>Create Task model</description>
+                            <priority>1</priority>
+                        </task>
+                    </tasks>
+                </story>
+            </stories>
+        </epic>
+    </epics>
+    <!-- Missing required user_feedback section -->
+    <metadata>
+        <model>test</model>
+        <provider>test</provider>
+        <version>1.0</version>
+        <context>test</context>
+    </metadata>
+</plan>
