@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plan version="1.0">
+    <epics>
+        <epic id="epic1" status="in_progress">
+            <description>Implement core model system</description>
+            <priority>1</priority>
+            <stories>
+                <story id="story1" status="complete">
+                    <description>Implement base model classes</description>
+                    <priority>1</priority>
+                    <points>1</points>
+                    <tasks>
+                        <task id="task1" status="complete">
+                            <description>Create Task model</description>
+                            <priority>1</priority>
+                        </task>
+                        <task id="task2" status="complete">
+                            <description>Create Story model</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task1</depends_on>
+                            </dependencies>
+                        </task>
+                        <task id="task3" status="complete">
+                            <description>Create Epic model</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task2</depends_on>
+                            </dependencies>
+                        </task>
+                        <task id="task4" status="complete">
+                            <description>Create Plan model</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task3</depends_on>
+                            </dependencies>
+                        </task>
+                    </tasks>
+                </story>
+                <story id="story2" status="complete">
+                    <description>Implement unit tests</description>
+                    <priority>1</priority>
+                    <points>1</points>
+                    <tasks>
+                        <task id="task5" status="complete">
+                            <description>Create Task tests</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task1</depends_on>
+                            </dependencies>
+                        </task>
+                        <task id="task6" status="complete">
+                            <description>Create Story tests</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task2</depends_on>
+                                <depends_on>task5</depends_on>
+                            </dependencies>
+                        </task>
+                        <task id="task7" status="complete">
+                            <description>Create Epic tests</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task3</depends_on>
+                                <depends_on>task6</depends_on>
+                            </dependencies>
+                        </task>
+                        <task id="task8" status="complete">
+                            <description>Create Plan tests</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task4</depends_on>
+                                <depends_on>task7</depends_on>
+                            </dependencies>
+                        </task>
+                    </tasks>
+                </story>
+                <story id="story3" status="in_progress">
+                    <description>Implement XML serialization</description>
+                    <priority>1</priority>
+                    <points>1</points>
+                    <tasks>
+                        <task id="task9" status="in_progress">
+                            <description>Create plan.xml template</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task4</depends_on>
+                                <depends_on>task8</depends_on>
+                            </dependencies>
+                        </task>
+                        <task id="task10" status="pending">
+                            <description>Validate XML against schema</description>
+                            <priority>1</priority>
+                            <dependencies>
+                                <depends_on>task9</depends_on>
+                            </dependencies>
+                        </task>
+                    </tasks>
+                </story>
+            </stories>
+        </epic>
+    </epics>
+    <user_feedback>
+        <entry id="FB-1">
+            <message>log a user feedback section to the plan as metadata, append-only, and with timestamps. it contains literal user messages like the one I'm giving right now, in their entirety. the first element will be the initial user request / scope of work, and subsequent elements will be either unsolicited feedback, or feedback solicited by planner or executor when scope is unclear. 3. this section should be consulted as part of every plan update in its entirety, possibly blocking the plan update with a raised exception (XSD needs to be extended with exceptions for this).</message>
+        </entry>
+        <entry id="FB-2">
+            <message>I want to be able to visualize the task breakdown as a set of nested items in markdown format, with indentation for hierarchy. I also want to be able to visualize the entire graph using markdown mermaid and using graphviz.</message>
+        </entry>
+        <entry id="FB-3">
+            <message>Chore: Update all tests to use error types instead of error strings.</message>
+        </entry>
+        <entry id="FB-4">
+            <message>Chore: Clear tech debt by auditing all classes to follow DRY and SOLID principles.</message>
+        </entry>
+        <entry id="FB-5">
+            <message>Refactor. Use cli, formatting, log_config, env across all tools. Move tools.common to src/ so that only executables are under tools/</message>
+        </entry>
+        <entry id="FB-6">
+            <message>Feat: enhance XSD to enforce TDD SOLID DRY, i.e. first task in group is create red test, penultimate tasks are ensure docsstrings, structured operational logging, coverage, etc. last task is green test. Force scrubbing of tests based on strings and not types. force use of hexbolt.utils.logging across all classes</message>
+        </entry>
+        <entry id="FB-7">
+            <message>Feat: pass the current timestamp to LLM so that it can fill it in for elements that it is updating. add created_at attribute to all elements with updated_at.</message>
+        </entry>
+    </user_feedback>
+    <metadata>
+        <model>test</model>
+        <provider>test</provider>
+        <version>1.0</version>
+        <context>test</context>
+    </metadata>
+</plan>
