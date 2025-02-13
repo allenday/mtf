@@ -1,6 +1,6 @@
 """Pylint plugin to enforce Pydantic usage at component boundaries."""
 
-from typing import Any, Callable, List, Optional, TypeVar, Set, Sequence
+from typing import Any, Callable, List, Optional, Sequence, Set, TypeVar
 
 # mypy: ignore-errors
 import astroid
@@ -8,7 +8,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.lint import PyLinter
 
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 PYDANTIC_VALIDATION_METHODS = {
     "model_validate",
@@ -21,13 +21,13 @@ PYDANTIC_VALIDATION_METHODS = {
 
 def pydantic_boundary_exempt(func: F) -> F:
     """Decorator to exempt a function from Pydantic boundary checks.
-    
+
     Example:
         @pydantic_boundary_exempt
         def my_api_endpoint(data: dict) -> dict:
             return data
     """
-    setattr(func, '_pydantic_boundary_exempt', True)
+    setattr(func, "_pydantic_boundary_exempt", True)
     return func
 
 
@@ -96,7 +96,7 @@ class PydanticBoundaryChecker(BaseChecker):
 
     def open(self) -> None:
         """Initialize boundary patterns from configuration."""
-        patterns = getattr(self.linter.config, 'boundary_patterns', [])
+        patterns = getattr(self.linter.config, "boundary_patterns", [])
         if isinstance(patterns, str):
             patterns = [p.strip() for p in patterns.split(",") if p.strip()]
         self._boundary_patterns = patterns
@@ -118,8 +118,10 @@ class PydanticBoundaryChecker(BaseChecker):
             if isinstance(decorator, nodes.Name) and decorator.name == "pydantic_boundary_exempt":
                 return True
             # Check for qualified decorator usage
-            if (isinstance(decorator, nodes.Attribute) and
-                    decorator.attrname == "pydantic_boundary_exempt"):
+            if (
+                isinstance(decorator, nodes.Attribute)
+                and decorator.attrname == "pydantic_boundary_exempt"
+            ):
                 return True
         return False
 
@@ -194,6 +196,7 @@ class PydanticBoundaryChecker(BaseChecker):
 
     def _uses_pydantic_models(self, node: nodes.FunctionDef) -> bool:
         """Check if the function uses Pydantic models."""
+
         def check_inferred(inferred: Sequence[Any]) -> bool:
             """Helper to check inferred nodes for BaseModel."""
             for inf in inferred:
@@ -230,7 +233,7 @@ class PydanticBoundaryChecker(BaseChecker):
 
     def _uses_model_attribute(self, node: nodes.FunctionDef, model_name: str) -> bool:
         """Check if a model's attributes are accessed in the function.
-        
+
         This ensures that if we receive a Pydantic model, we actually use its data.
         """
         for child in node.nodes_of_class(nodes.Attribute):
@@ -240,7 +243,7 @@ class PydanticBoundaryChecker(BaseChecker):
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit a function definition.
-        
+
         For boundary functions, analyze data flow:
         1. Input models must be accessed (used) or validated
         2. Any Pydantic models used internally must be validated
