@@ -1,3 +1,12 @@
+[MASTER]
+# Add the src directory to Python path
+pythonpath=src
+
+# Other pylint settings...
 [MESSAGES CONTROL]
 disable=
-    C0301, # Line too long
+    C0111,  # missing-docstring
+    C0103,  # invalid-name
+
+[FORMAT]
+max-line-length=100

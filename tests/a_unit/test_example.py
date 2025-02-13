@@ -11,8 +11,3 @@ def test_example() -> None:
 def test_add() -> None:
     """Test the add function from the example module."""
     assert add(2, 3) == 5
-
-
-def test2_example() -> None:
-    """Test the example module."""
-    assert True
