@@ -27,6 +27,12 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
+    - name: Lint with Pylint
+      run: poetry run pylint src/ tests/
+
+    - name: Type check with MyPy
+      run: poetry run mypy src/ tests/
+
     - name: Run pre-commit hooks
       uses: pre-commit/action@v3.0.0
 
