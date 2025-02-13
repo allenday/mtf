@@ -1,9 +1,7 @@
 name: Branch Naming
 
 on:
-  create:
-    branches:
-      - '**'
+  create:  # This event triggers for any branch creation
   pull_request:
     types: [opened, reopened]
 
@@ -37,10 +35,11 @@ jobs:
           echo "Branch name is valid: $BRANCH_NAME"
 
   check-pr-branch:
+    name: Check PR Target Branch
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - name: Check PR target branch
+      - name: Validate PR target branch
         run: |
           BASE_BRANCH="${{ github.base_ref }}"
           if [ "$BASE_BRANCH" != "main" ]; then
