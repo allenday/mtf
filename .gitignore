@@ -37,3 +37,6 @@ ENV/
 .vscode/
 *.swp
 *.swo
+
+# Unset
+.unset_commit_msg.sh
